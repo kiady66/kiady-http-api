@@ -1,0 +1,34 @@
+org: kiady67
+app: kiady-http-api
+service: kiady-http-api
+frameworkVersion: '3'
+
+plugins:
+  - serverless-bundle
+  - serverless-offline
+  - serverless-dotenv-plugin
+
+provider:
+  name: aws
+  runtime: python3.8
+  region: us-east-1
+
+functions:
+  hello:
+    handler: src/login.login
+    events:
+      - httpApi:
+          path: /login
+          method: post
+  bye:
+    handler: src/bye.bye
+    events:
+      - httpApi:
+          path: /bye
+          method: get
+  test:
+    handler: src/test.test
+    events:
+      - httpApi:
+          path: /test
+          method: post
