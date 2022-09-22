@@ -15,12 +15,8 @@ cursor = None
 
 
 def login(event, context):
-    body = {
-        "message": "Hello word",
-        "input": event
-    }
-
     parameters = json.loads(event["body"])
+
 
     insert_user(parameters["username"], parameters["email"], parameters["udid"])
 
@@ -56,7 +52,7 @@ def insert_user(user_name, email, udid):
             connection.close()
 
 
-def check_user_token(event, context):
+def check_user_token(event):
     try:
         parameters = json.loads(event["body"])
         token_id = parameters["id_token"]

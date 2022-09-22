@@ -68,6 +68,7 @@ def update_db(insert_script, insert_value):
         if connection is not None:
             connection.close()
 
+
 def test(event, context):
     parameters = json.loads(event["body"])
     token_id = parameters["id_token"]
