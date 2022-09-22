@@ -1,79 +1,64 @@
 import json
-import psycopg2
-from firebase_admin import auth
-
-hostname = 'localhost'
-database = 'personal_calendar'
-username = 'postgres'
-pwd = 'root'
-port_id = 5432
-connection = None
-cursor = None
+import update_db
+import send_response
+import login
 
 
-def send_response(event, context):
-    body = {
-        "message": "Hello word",
-        "input": event
-    }
+def create_comment(event, context):
+    if not login.check_user_token(event):
+        return send_response.send_response("access error", 403)
 
-    response = {"statusCode": 200, "body": json.dumps(body)}
+    # TODO: check if user own the comment
 
-    return response
+    try:
+        insert_comment_to_db(event)
+        send_response.send_response("success", 200)
+    except:
+        send_response.send_response("internal error", 500)
+
+
+def update_comment(event, context):
+    if not login.check_user_token(event):
+        return send_response.send_response("access error", 403)
+
+    # TODO: check if user own the comment
+
+    try:
+        update_comment_to_db(event)
+        send_response.send_response("success", 200)
+    except:
+        send_response.send_response("internal error", 500)
+
+
+def delete_comment(event, context):
+    if not login.check_user_token(event):
+        return send_response.send_response("access error", 403)
+
+    # TODO: check if user own the comment
+
+    try:
+        delete_comment_to_db(event)
+        send_response.send_response("success", 200)
+    except:
+        send_response.send_response("internal error", 500)
 
 
 def insert_comment_to_db(event, context):
-    # check if user is connected
     parameters = json.loads(event["body"])
-    sender = parameters["sender"], content = parameters["content"], date = parameters["date"]
     insert_script = 'INSERT INTO "comment" (sender, content, date) VALUES (%s, %s, %s)'
-    insert_value = (sender, content, date)
-    update_db(insert_script, insert_value)
-    send_response(event, context)
+    insert_value = (parameters["sender"], parameters["content"], parameters["date"])
+    update_db.update_db(insert_script, insert_value)
 
 
-def update_comment_to_db(id, content):
-    # check if user is connected and user_id = sender
-    update_script = 'UPDATE "comment" SET content = %s where id = %s'
-    update_values = (content, id)
-    update_db(update_script, update_values)
-
-
-def delete_comment_to_db(id):
-    # check if user is connected and user_id = sender
-    delete_script = 'DELETE FROM "comment" where id = %s'
-    delete_values = id
-
-
-def update_db(insert_script, insert_value):
-    try:
-        connection = psycopg2.connect(
-            host=hostname,
-            dbname=database,
-            user=username,
-            password=pwd,
-            port=port_id
-        )
-
-        cursor = connection.cursor()
-
-        cursor.execute(insert_script, insert_value)
-        connection.commit()
-
-    except Exception as error:
-        print(error)
-    finally:
-        if cursor is not None:
-            cursor.close()
-        if connection is not None:
-            connection.close()
-
-
-def test(event, context):
+def update_comment_to_db(event):
     parameters = json.loads(event["body"])
-    token_id = parameters["id_token"]
+    update_script = 'UPDATE "comment" SET content = %s where id = %s'
+    update_values = (parameters["content"], parameters["comment_id"])
+    update_db.update_db(update_script, update_values)
 
-    decoded_token = auth.verify_id_token(token_id)
-    uid = decoded_token['uid']
 
-    print(uid)
+def delete_comment_to_db(event):
+    parameters = json.loads(event["body"])
+    delete_script = 'DELETE FROM "comment" where id = %s'
+    delete_values = parameters["comment_id"]
+    update_db.update_db(delete_script, delete_values)

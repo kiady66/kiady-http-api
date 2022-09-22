@@ -53,7 +53,7 @@ def insert_task_to_db(event):
         parameters["start_date"], parameters["end_date"],
         parameters["duration"]
     )
-    update_db(insert_script, insert_value)
+    update_db.update_db(insert_script, insert_value)
 
 
 def update_task_to_db(event):
@@ -64,13 +64,13 @@ def update_task_to_db(event):
         parameters["users"], parameters["type"],
         parameters["configuration"], parameters["priority"],
         parameters["start_date"], parameters["end_date"],
-        parameters["duration"], parameters["id"]
+        parameters["duration"], parameters["task_id"]
     )
-    update_db(update_script, update_values)
+    update_db.update_db(update_script, update_values)
 
 
 def delete_task_to_db(event):
     parameters = json.loads(event["body"])
     delete_script = 'DELETE FROM task where id = %s'
-    delete_values = parameters["id"]
-    update_db(delete_script, delete_values)
+    delete_values = parameters["task_id"]
+    update_db.update_db(delete_script, delete_values)
