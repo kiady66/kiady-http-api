@@ -10,8 +10,6 @@ from src.static_function import test
 
 # TODO: add flexible_id attribute to task in db
 def create_task(event, context):
-    test("bonjour")
-
 
     # TODO: check if user own the task
     # TODO: check if task has to be override
@@ -84,8 +82,10 @@ def delete_task_to_db(event):
     request_db.update_db(delete_script, delete_values)
 
 
-def is_owner(event):
-    parameters = json.loads(event["body"])
-    request_script = 'SELECT * from task where id = %s AND %s IN users'
-    request_value = (parameters["task_id"], parameters["user_id"])
-    print(request_db(request_script, request_value))
+def is_owner(tasks, user_id):
+    for task in tasks:
+        request_script = 'SELECT * from task where id = %s AND %s =ANY(admins);'
+        request_value = (task["task_id"], user_id)
+        if not request_db(request_script, request_value):
+            return False
+    return False
