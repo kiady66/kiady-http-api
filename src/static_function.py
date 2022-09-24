@@ -19,5 +19,11 @@ def str_to_dtime(string_from_api):
     return datetime.strptime(string_from_api, '%d/%m/%Y %H:%M:%S')
 
 
+def extract_task_from_request(event):
+    parameters = json.loads(event["body"])
+    tasks = parameters["tasks"]
+    return tasks
+
+
 def test(string):
     print(string)
