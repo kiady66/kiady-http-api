@@ -6,7 +6,8 @@ frameworkVersion: '3'
 plugins:
   - serverless-bundle
   - serverless-offline
-  - serverless-dotenv-plugin
+  - serverless-python-requirements
+
 
 provider:
   name: aws
@@ -14,21 +15,33 @@ provider:
   region: us-east-1
 
 functions:
-  hello:
+  login:
     handler: src/login.login
     events:
       - httpApi:
           path: /login
           method: post
-  bye:
-    handler: src/bye.bye
+
+  is_owner_task:
+    handler: src/task.is_owner_test
     events:
       - httpApi:
-          path: /bye
-          method: get
-  test:
-    handler: src/test.test
+          path: /task/is_owner
+          method: post
+
+  create_task:
+    handler: src/task.create_task
     events:
       - httpApi:
-          path: /test
+          path: /task/create_task
+          method: post
+    package:
+      include:
+        - /login.py
+
+  static_function_test:
+    handler: src/static_function.static_function_test
+    events:
+      - httpApi:
+          path: /static_function
           method: post
