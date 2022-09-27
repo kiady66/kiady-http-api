@@ -25,5 +25,11 @@ def extract_task_from_request(event):
     return tasks
 
 
+def get_user(event):
+    parameters = json.loads(event["body"])
+    user = parameters["current_user"]
+    return user
+
+
 def test(string):
     print(string)

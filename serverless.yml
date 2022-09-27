@@ -8,11 +8,14 @@ plugins:
   - serverless-offline
   - serverless-python-requirements
 
+custom:
+  stage: ${opt:stage, self:provider.stage}
 
 provider:
   name: aws
   runtime: python3.8
   region: us-east-1
+  environment: ${file(./env.yml):${self:custom.stage}}
 
 functions:
   login:
@@ -22,22 +25,41 @@ functions:
           path: /login
           method: post
 
-  is_owner_task:
-    handler: src/task.is_owner_test
+  test:
+    handler: src/task.test
     events:
       - httpApi:
-          path: /task/is_owner
+          path: /task/test
           method: post
+
+  get_task:
+    handler: src/task.get_task
+    events:
+      - httpApi:
+          path: /task
+          method: post
+
 
   create_task:
     handler: src/task.create_task
     events:
       - httpApi:
-          path: /task/create_task
+          path: /task/create
           method: post
-    package:
-      include:
-        - /login.py
+
+  update_task:
+    handler: src/task.update_task
+    events:
+      - httpApi:
+          path: /task/update
+          method: post
+
+  delete_task:
+    handler: src/task.delete
+    events:
+      - httpApi:
+          path: /task/delete_task
+          method: post
 
   static_function_test:
     handler: src/static_function.static_function_test

@@ -1,4 +1,3 @@
-import json
 from src.login import check_user_token
 from src.send_response import send_response
 from src.request_db import request_db
@@ -6,9 +5,18 @@ from src.request_db import update_db
 from src.static_function import convert_json_to_array
 from src.static_function import str_to_dtime
 from src.static_function import extract_task_from_request
+from src.static_function import get_user
 
 
 # TODO: add flexible_id attribute to task in db
+
+
+def get_task(event, context):
+    request_script = f"SELECT * FROM task WHERE %s=ANY(admins)"
+    user_id = int(get_user(event)["id"])
+    return send_response(request_db(request_script, [user_id]), 200)
+
+
 def create_task(event, context):
     update_tasks(event, insert_task_to_db)
 
@@ -104,3 +112,8 @@ def update_tasks(event, callback, is_deleting_task=False):
         send_response("success", 200)
     except:
         send_response("internal error", 500)
+
+
+def test(event, context):
+    variable = "kiady"
+    print(f"bonjour {variable}")

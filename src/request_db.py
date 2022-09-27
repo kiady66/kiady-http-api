@@ -1,10 +1,12 @@
+import os
+
 import psycopg2
 
-hostname = 'localhost'
-database = 'personal_calendar'
-username = 'postgres'
-pwd = 'root'
-port_id = 5432
+hostname = os.environ["HOST_NAME"]
+database = os.environ["DB_NAME"]
+username = os.environ["USERNAME"]
+pwd = os.environ["PASSWORD"]
+port_id = os.environ["PORT"]
 connection = None
 cursor = None
 
@@ -46,8 +48,13 @@ def request_db(request_script, request_value):
         cursor = connection.cursor()
 
         cursor.execute(request_script, request_value)
+        r = [dict((cursor.description[i][0], value) \
+                  for i, value in enumerate(row)) for row in cursor.fetchall()]
+        one = False
 
-        return cursor.fetchall()
+        print(r)
+
+        return (r[0] if r else None) if one else r
 
     except Exception as error:
         print(error)

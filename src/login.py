@@ -1,4 +1,6 @@
 import json
+import os
+
 import psycopg2
 import firebase_admin
 from firebase_admin import auth
@@ -53,6 +55,8 @@ def insert_user(user_name, email, udid):
 
 
 def check_user_token(event):
+    if os.environ['stage'] == 'dev':
+        return True
     try:
         parameters = json.loads(event["body"])
         token_id = parameters["id_token"]
