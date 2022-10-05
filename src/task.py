@@ -58,6 +58,13 @@ def update_task_to_db(tasks):
             task["duration"], convert_json_to_array(task["pinned"]), task["task_id"]
         )
         update_db(update_script, update_values)
+    #check if the task is flexible
+    #if it is flexible, delete all the flexible task with the same flexible_id and insert the new one
+    #while inserting, calculate the new flexible_id
+    #report if there is no place for the flexible task
+    #propose user to reduce the duration of the flexible task
+    #propose user to reduce the duration of one of the task that overlap with the flexible task
+
 
 
 def delete_task_to_db(tasks):
@@ -98,7 +105,7 @@ def check_overlaps(tasks):
     return request_db(request_script, request_value)
 
 
-# delete_call_back is none if update_tasks is not a deleting function
+# The variable "delete_call_back" is none if update_tasks is not a deleting function
 def update_tasks(event, callback, is_deleting_task=False, is_creating_task=False):
     if not check_user_token(event):
         return send_response("access error", 403)
