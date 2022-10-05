@@ -17,10 +17,15 @@ def get_task(event, context):
     return send_response(request_db(request_script, [user_id]), 200)
 
 
+# TODO: validation (check if start_date < end_date)
+# TODO: modify (drop/insert) flexible task in db
+# TODO: validation (check if all the tasks sent are not overlapping) : not compare
 def create_task(event, context):
-    update_tasks(event, insert_task_to_db)
+    return update_tasks(event, insert_task_to_db, is_creating_task=True)
 
 
+# TODO: validation (check if start_date < end_date)
+# TODO: modify (drop/insert) flexible task in db
 def update_task(event, context):
     update_tasks(event, update_task_to_db)
 
@@ -87,21 +92,26 @@ def check_overlaps(tasks):
             str_to_dtime(task["end_date"])
         )
         if i < length:
-            request_script = request_script + 'or '
+            request_script = request_script + ' or '
+            i += 1
 
     return request_db(request_script, request_value)
 
 
 # delete_call_back is none if update_tasks is not a deleting function
-def update_tasks(event, callback, is_deleting_task=False):
+def update_tasks(event, callback, is_deleting_task=False, is_creating_task=False):
     if not check_user_token(event):
         return send_response("access error", 403)
 
-    if not is_owner(extract_task_from_request(event)):
-        return send_response("access error", 403)
+    if not is_creating_task:
+        if not is_owner(extract_task_from_request(event), get_user(event)["id"]):
+            return send_response("access error", 403)
 
     if not is_deleting_task:
-        overlapping = check_overlaps(extract_task_from_request(event))
+        try:
+            overlapping = check_overlaps(extract_task_from_request(event))
+        except Exception:
+            return send_response("something went wrong")
         if overlapping:
             return send_response({
                 "tasks_overlapping": overlapping,
@@ -109,11 +119,6 @@ def update_tasks(event, callback, is_deleting_task=False):
 
     try:
         callback(extract_task_from_request(event))
-        send_response("success", 200)
+        return send_response("success", 200)
     except:
         send_response("internal error", 500)
-
-
-def test(event, context):
-    variable = "kiady"
-    print(f"bonjour {variable}")

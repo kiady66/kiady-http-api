@@ -9,7 +9,7 @@ plugins:
   - serverless-python-requirements
 
 custom:
-  stage: ${opt:stage, self:provider.stage}
+  stage: ${opt:stage, self:provider.stage, "dev"}
 
 provider:
   name: aws
@@ -23,13 +23,6 @@ functions:
     events:
       - httpApi:
           path: /login
-          method: post
-
-  test:
-    handler: src/task.test
-    events:
-      - httpApi:
-          path: /task/test
           method: post
 
   get_task:
